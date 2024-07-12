@@ -5,18 +5,20 @@ import (
 	"net/http"
 )
 
-func handleHome(w http.ResponseWriter, req *http.Request) {
-	return
+func handleHealth(w http.ResponseWriter, req *http.Request) {
+	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
+	w.WriteHeader(200)
+	w.Write([]byte("OK"))
 }
 
 func main() {
 	const port = "8080"
-	const filepathRoot = "."
+	const filepathRoot = "./"
 
 	//create the mux
 	mux := http.NewServeMux()
-	mux.Handle("/", http.FileServer(http.Dir(filepathRoot)))
-
+	mux.Handle("/app/", http.StripPrefix("/app", http.FileServer(http.Dir(filepathRoot))))
+	mux.HandleFunc("/healthz", handleHealth)
 	//create a server struct
 	srv := &http.Server{
 		Addr:    ":" + port,
